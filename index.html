@@ -5,7 +5,325 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔹 NFC Mifare Editor 🔹</title>
     <style>
-        /* Existing styles remain unchanged */
+        /* Original styles unchanged */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark {
+            background: linear-gradient(135deg, #263238, #455a64);
+            color: #fff;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: background 0.4s;
+        }
+        .container.dark {
+            background: #37474f;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #0288d1;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .dark h1 {
+            color: #4fc3f7;
+        }
+        .top-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-toggle {
+            padding: 8px 12px;
+            background: #ffca28;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .lang-toggle:hover {
+            background: #ffb300;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background 0.4s;
+        }
+        .dark .section {
+            background: #455a64;
+        }
+        .section h3 {
+            margin: 0 0 10px;
+            color: #0277bd;
+            font-size: 20px;
+        }
+        .dark .section h3 {
+            color: #81d4fa;
+        }
+        .file-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-input input[type="file"] {
+            display: none;
+        }
+        .file-input label {
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .file-input label:hover {
+            background: #45a049;
+        }
+        .info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .info span {
+            font-weight: bold;
+            color: #d81b60;
+        }
+        .dark .info span {
+            color: #f06292;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        select, input[type="number"] {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 5px;
+            background: #fff;
+            transition: background 0.4s, border 0.4s;
+        }
+        .dark select, .dark input[type="number"] {
+            background: #546e7a;
+            border-color: #78909c;
+            color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            background: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0277bd;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            background: #fafafa;
+            transition: background 0.4s, border 0.4s;
+        }
+        .dark textarea {
+            background: #546e7a;
+            border-color: #78909c;
+            color: #fff;
+        }
+
+        /* Stile Switch Tema */
+        .switch {
+            display: inline-block;
+            position: relative;
+        }
+        .switch__input {
+            clip: rect(1px, 1px, 1px, 1px);
+            clip-path: inset(50%);
+            height: 1px;
+            width: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+        }
+        .switch__label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            background-color: #2b2b2b;
+            border: 3px solid #5b5b5b;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(.46,.03,.52,.96);
+        }
+        .switch__indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateX(-72%);
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-color: #7b7b7b;
+            border-radius: 9999px;
+            box-shadow: 5px 0 0 0 rgba(0, 0, 0, 0.2) inset;
+            transition: all 0.4s cubic-bezier(.46,.03,.52,.96);
+        }
+        .switch__indicator::before,
+        .switch__indicator::after {
+            position: absolute;
+            content: '';
+            display: block;
+            background-color: #ffffff;
+            border-radius: 9999px;
+        }
+        .switch__indicator::before {
+            top: 3px;
+            left: 3px;
+            width: 4px;
+            height: 4px;
+            opacity: 0.6;
+        }
+        .switch__indicator::after {
+            bottom: 4px;
+            right: 3px;
+            width: 7px;
+            height: 7px;
+            opacity: 0.8;
+        }
+        .switch__decoration {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            display: block;
+            width: 3px;
+            height: 3px;
+            background-color: #ffffff;
+            border-radius: 9999px;
+            animation: twinkle 0.8s infinite -0.6s;
+        }
+        .switch__decoration::before,
+        .switch__decoration::after {
+            position: absolute;
+            display: block;
+            content: '';
+            width: 3px;
+            height: 3px;
+            background-color: #ffffff;
+            border-radius: 9999px;
+        }
+        .switch__decoration::before {
+            top: -10px;
+            left: 5px;
+            opacity: 1;
+            animation: twinkle 0.6s infinite;
+        }
+        .switch__decoration::after {
+            top: -4px;
+            left: 15px;
+            animation: twinkle 0.6s infinite -0.2s;
+        }
+        @keyframes twinkle {
+            50% { opacity: 0.2; }
+        }
+        .switch__input:checked + .switch__label {
+            background-color: #8fb5f5;
+            border-color: #347cf8;
+        }
+        .switch__input:checked + .switch__label .switch__indicator {
+            background-color: #ecd21f;
+            box-shadow: none;
+            transform: translate(-50%, -50%) translateX(72%);
+        }
+        .switch__input:checked + .switch__label .switch__indicator::before,
+        .switch__input:checked + .switch__label .switch__indicator::after {
+            display: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration {
+            top: 50%;
+            transform: translate(0%, -50%);
+            animation: cloud 8s linear infinite;
+            width: 10px;
+            height: 10px;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::before {
+            width: 5px;
+            height: 5px;
+            top: auto;
+            bottom: 0;
+            left: -4px;
+            animation: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            width: 7px;
+            height: 7px;
+            top: auto;
+            bottom: 0;
+            left: 8px;
+            animation: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration,
+        .switch__input:checked + .switch__label .switch__decoration::before,
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            border-radius: 9999px 9999px 0 0;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            border-bottom-right-radius: 9999px;
+        }
+        @keyframes cloud {
+            0% { transform: translate(0%, -50%); }
+            50% { transform: translate(-50%, -50%); }
+            100% { transform: translate(0%, -50%); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            button, .file-input label {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            .top-buttons {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
     </style>
 </head>
 <body>
@@ -25,11 +343,68 @@
         <div class="section">
             <div class="file-input">
                 <label for="fileInput">📂 Carica File NFC</label>
-                <input type="file" id="fileInput" accept=".nfc,.txt,.mct">
+                <input type="file" id="fileInput" accept=".nfc,.txt,.mct"> <!-- Modified to accept .mct -->
             </div>
         </div>
 
-        <!-- Rest of the HTML remains unchanged -->
+        <div class="section">
+            <h3>📋 Dati Estratti</h3>
+            <div class="info">
+                <p>🆔 UID: <span id="uid">N/A</span></p>
+                <p>💳 Credito attuale: <span id="credit">N/A</span></p>
+                <p>📅 Data ultima ricarica: <span id="date">N/A</span></p>
+                <p>🔒 Tipo codifica: <span id="encoding">N/A</span></p>
+                <p>💵 Credito ultima op.: <span id="lastOpCredit">N/A</span></p>
+                <p>🕒 Data ultima op.: <span id="lastOpDate">N/A</span></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>✏️ Modifica Dati</h3>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepUid" checked> 🔄 Lascia UID corrente</label>
+                <label>🆔 Nuovo UID:</label>
+                <select id="uid0" disabled></select>
+                <select id="uid1" disabled></select>
+                <select id="uid2" disabled></select>
+                <select id="uid3" disabled></select>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepCredit" checked> 🔄 Lascia credito corrente</label>
+                <label>💳 Nuovo credito (€):</label>
+                <input type="number" id="newCredit" step="0.01" min="0" disabled>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepDate" checked> 🔄 Lascia data corrente</label>
+                <label>📅 Nuova data ricarica:</label>
+                <select id="day" disabled></select>
+                <select id="month" disabled></select>
+                <select id="year" disabled></select>
+                <select id="hours" disabled></select>
+                <select id="minutes" disabled></select>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepLastOpCredit" checked> 🔄 Lascia credito ultima op.</label>
+                <label>💵 Nuovo credito ultima op. (€):</label>
+                <input type="number" id="newLastOpCredit" step="0.01" min="0" disabled>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepLastOpDate" checked> 🔄 Lascia data ultima op.</label>
+                <label>🕒 Nuova data ultima op.:</label>
+                <select id="lastOpDay" disabled></select>
+                <select id="lastOpMonth" disabled></select>
+                <select id="lastOpYear" disabled></select>
+                <select id="lastOpHours" disabled></select>
+                <select id="lastOpMinutes" disabled></select>
+            </div>
+        </div>
+
+        <div class="section">
+            <button onclick="updateFile(false)">🔄 Aggiorna File</button>
+            <button onclick="updateFile(true)">📝 Crea Nuovo File</button>
+        </div>
+
+        <textarea id="fileContent" readonly placeholder="Contenuto del file NFC..."></textarea>
     </div>
 
     <script>
@@ -41,14 +416,60 @@
 
         const texts = {
             it: {
-                // Existing translations unchanged
+                title: "🔹 NFC Mifare Editor 🔹",
+                loadFile: "📂 Carica File NFC",
+                uid: "🆔 UID",
+                credit: "💳 Credito attuale",
+                date: "📅 Data ultima ricarica",
+                encoding: "🔒 Tipo codifica",
+                lastOpCredit: "💵 Credito ultima op.",
+                lastOpDate: "🕒 Data ultima op.",
+                keepUid: "🔄 Lascia UID corrente",
+                newUid: "🆔 Nuovo UID",
+                keepCredit: "🔄 Lascia credito corrente",
+                newCredit: "💳 Nuovo credito (€)",
+                keepDate: "🔄 Lascia data corrente",
+                newDate: "📅 Nuova data ricarica",
+                keepLastOpCredit: "🔄 Lascia credito ultima op.",
+                newLastOpCredit: "💵 Nuovo credito ultima op. (€)",
+                keepLastOpDate: "🔄 Lascia data ultima op.",
+                newLastOpDate: "🕒 Nuova data ultima op.",
+                updateSame: "🔄 Aggiorna File",
+                updateNew: "📝 Crea Nuovo File",
+                months: ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+                errorLoad: "❌ Carica prima un file NFC!",
+                errorValue: "❌ Inserisci valori validi!",
+                errorBlock: "❌ Block 0, 4, 5 o 6 non trovato!"
             },
             en: {
-                // Existing translations unchanged
+                title: "🔹 NFC Mifare Editor 🔹",
+                loadFile: "📂 Load NFC File",
+                uid: "🆔 UID",
+                credit: "💳 Current Credit",
+                date: "📅 Last Recharge Date",
+                encoding: "🔒 Encoding Type",
+                lastOpCredit: "💵 Last Operation Credit",
+                lastOpDate: "🕒 Last Operation Date",
+                keepUid: "🔄 Keep Current UID",
+                newUid: "🆔 New UID",
+                keepCredit: "🔄 Keep Current Credit",
+                newCredit: "💳 New Credit (€)",
+                keepDate: "🔄 Keep Current Date",
+                newDate: "📅 New Recharge Date",
+                keepLastOpCredit: "🔄 Keep Last Op. Credit",
+                newLastOpCredit: "💵 New Last Op. Credit (€)",
+                keepLastOpDate: "🔄 Keep Last Op. Date",
+                newLastOpDate: "🕒 New Last Op. Date",
+                updateSame: "🔄 Update File",
+                updateNew: "📝 Create New File",
+                months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                errorLoad: "❌ Load an NFC file first!",
+                errorValue: "❌ Enter valid values!",
+                errorBlock: "❌ Block 0, 4, 5, or 6 not found!"
             }
         };
 
-        // Populate dropdowns (unchanged)
+        // Popola dropdown
         for (let i = 0; i < 256; i++) {
             const opt = document.createElement("option");
             opt.value = i; opt.text = i.toString(16).padStart(2, "0").toUpperCase();
@@ -80,7 +501,7 @@
             ["minutes", "lastOpMinutes"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
         }
 
-        // Toggle fields (unchanged)
+        // Toggle campi
         ["keepUid", "keepCredit", "keepDate", "keepLastOpCredit", "keepLastOpDate"].forEach(id => {
             document.getElementById(id).addEventListener("change", e => {
                 const prefix = id.replace("keep", "").toLowerCase();
@@ -93,7 +514,7 @@
             });
         });
 
-        // Language toggle (unchanged)
+        // Toggle lingua
         document.getElementById("langToggle").addEventListener("click", () => {
             language = language === "it" ? "en" : "it";
             document.getElementById("langToggle").textContent = language === "it" ? "🇬🇧 EN" : "🇮🇹 IT";
@@ -121,7 +542,7 @@
             updateUI();
         });
 
-        // Theme toggle (unchanged)
+        // Toggle tema
         document.getElementById("Switch").addEventListener("change", (e) => {
             document.body.classList.toggle("dark", e.target.checked);
             document.querySelector(".container").classList.toggle("dark", e.target.checked);
@@ -137,13 +558,13 @@
             reader.onload = () => {
                 fileContent = reader.result;
                 document.getElementById("fileContent").value = fileContent;
-                parseFile(file.name);
+                parseFile(file.name); // Pass filename to determine file type
             };
             reader.readAsText(file);
         }
 
         function parseFile(filename) {
-            const lines = fileContent.split("\n").map(line => line.trim());
+            const lines = fileContent.split("\n");
             let block0Found = false, block4Found = false, block5Found = false, block6Found = false;
             sectorKeys = {};
             block0 = Array(16).fill(0); keys = Array(16).fill(0); lastOpCredit = Array(16).fill(0); lastOpDate = Array(16).fill(0);
@@ -154,6 +575,7 @@
                 let blockCounter = 0;
 
                 lines.forEach(line => {
+                    line = line.trim();
                     if (line.startsWith("+Sector:")) {
                         currentSector = parseInt(line.split(":")[1].trim());
                         blockCounter = 0;
@@ -177,17 +599,17 @@
                                 lastOpDateHex = data.slice(0, 16);
                                 lastOpDate = lastOpDateHex.map(x => parseInt(x, 16));
                                 block6Found = true;
-                            } else if (blockCounter === 3) { // Sector trailer (keys A and B)
+                            } else if (blockCounter === 3) { // Sector trailer
                                 sectorKeys[currentSector] = [
-                                    data.slice(0, 6).join("").toUpperCase(), // Key A
-                                    data.slice(10, 16).join("").toUpperCase() // Key B
+                                    data.slice(0, 6).join("").toUpperCase(),
+                                    data.slice(10, 16).join("").toUpperCase()
                                 ];
                             }
                             blockCounter++;
                         }
                     }
                 });
-            } else { // Existing .nfc/.txt parsing
+            } else { // Original .nfc/.txt parsing
                 lines.forEach(line => {
                     if (line.startsWith("Block ")) {
                         const parts = line.split(/\s+/);
@@ -230,7 +652,6 @@
             updateUI();
         }
 
-        // Rest of the functions (updateUI, calculateCredit, etc.) remain unchanged
         function updateUI() {
             document.getElementById("uid").textContent = block0Hex.slice(0, 4).join(" ") || "00 00 00 00";
             document.getElementById("credit").textContent = calculateCredit().toFixed(2) + " €";
