@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔹 NFC Mifare Editor 🔹</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #0288d1;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .lang-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 8px 12px;
+            background: #ffca28;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .lang-toggle:hover {
+            background: #ffb300;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .section h3 {
+            margin: 0 0 10px;
+            color: #0277bd;
+            font-size: 20px;
+        }
+        .file-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .file-input input[type="file"] {
+            display: none;
+        }
+        .file-input label {
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .file-input label:hover {
+            background: #45a049;
+        }
+        .info p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        .info span {
+            font-weight: bold;
+            color: #d81b60;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        select, input[type="number"] {
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #0288d1;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0277bd;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            background: #fafafa;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            button, .file-input label {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔹 NFC Mifare Editor 🔹</h1>
+        <button class="lang-toggle" id="langToggle">🇬🇧 EN</button>
+
+        <div class="section">
+            <div class="file-input">
+                <label for="fileInput">📂 Carica File NFC</label>
+                <input type="file" id="fileInput" accept=".nfc,.txt">
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📋 Dati Estratti</h3>
+            <div class="info">
+                <p>🆔 UID: <span id="uid">N/A</span></p>
+                <p>💳 Credito attuale: <span id="credit">N/A</span></p>
+                <p>📅 Data ultima ricarica: <span id="date">N/A</span></p>
+                <p>🔒 Tipo codifica: <span id="encoding">N/A</span></p>
+                <p>💵 Credito ultima op.: <span id="lastOpCredit">N/A</span></p>
+                <p>🕒 Data ultima op.: <span id="lastOpDate">N/A</span></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>✏️ Modifica Dati</h3>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepUid" checked> 🔄 Lascia UID corrente</label>
+                <label>🆔 Nuovo UID:</label>
+                <select id="uid0" disabled></select>
+                <select id="uid1" disabled></select>
+                <select id="uid2" disabled></select>
+                <select id="uid3" disabled></select>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepCredit" checked> 🔄 Lascia credito corrente</label>
+                <label>💳 Nuovo credito (€):</label>
+                <input type="number" id="newCredit" step="0.01" min="0" disabled>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepDate" checked> 🔄 Lascia data corrente</label>
+                <label>📅 Nuova data ricarica:</label>
+                <select id="day" disabled></select>
+                <select id="month" disabled></select>
+                <select id="year" disabled></select>
+                <select id="hours" disabled></select>
+                <select id="minutes" disabled></select>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepLastOpCredit" checked> 🔄 Lascia credito ultima op.</label>
+                <label>💵 Nuovo credito ultima op. (€):</label>
+                <input type="number" id="newLastOpCredit" step="0.01" min="0" disabled>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="keepLastOpDate" checked> 🔄 Lascia data ultima op.</label>
+                <label>🕒 Nuova data ultima op.:</label>
+                <select id="lastOpDay" disabled></select>
+                <select id="lastOpMonth" disabled></select>
+                <select id="lastOpYear" disabled></select>
+                <select id="lastOpHours" disabled></select>
+                <select id="lastOpMinutes" disabled></select>
+            </div>
+        </div>
+
+        <div class="section">
+            <button onclick="updateFile(false)">🔄 Aggiorna File</button>
+            <button onclick="updateFile(true)">📝 Crea Nuovo File</button>
+        </div>
+
+        <textarea id="fileContent" readonly placeholder="Contenuto del file NFC..."></textarea>
+    </div>
+
+    <script>
+        let fileContent = null;
+        let block0 = Array(16).fill(0), keys = Array(16).fill(0), lastOpCredit = Array(16).fill(0), lastOpDate = Array(16).fill(0);
+        let block0Hex = Array(16).fill("00"), keysHex = Array(16).fill("00"), lastOpCreditHex = Array(16).fill("00"), lastOpDateHex = Array(16).fill("00");
+        let sectorKeys = {};
+        let language = "it";
+
+        const texts = {
+            it: {
+                title: "🔹 NFC Mifare Editor 🔹",
+                loadFile: "📂 Carica File NFC",
+                uid: "🆔 UID",
+                credit: "💳 Credito attuale",
+                date: "📅 Data ultima ricarica",
+                encoding: "🔒 Tipo codifica",
+                lastOpCredit: "💵 Credito ultima op.",
+                lastOpDate: "🕒 Data ultima op.",
+                keepUid: "🔄 Lascia UID corrente",
+                newUid: "🆔 Nuovo UID",
+                keepCredit: "🔄 Lascia credito corrente",
+                newCredit: "💳 Nuovo credito (€)",
+                keepDate: "🔄 Lascia data corrente",
+                newDate: "📅 Nuova data ricarica",
+                keepLastOpCredit: "🔄 Lascia credito ultima op.",
+                newLastOpCredit: "💵 Nuovo credito ultima op. (€)",
+                keepLastOpDate: "🔄 Lascia data ultima op.",
+                newLastOpDate: "🕒 Nuova data ultima op.",
+                updateSame: "🔄 Aggiorna File",
+                updateNew: "📝 Crea Nuovo File",
+                months: ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+                errorLoad: "❌ Carica prima un file NFC!",
+                errorValue: "❌ Inserisci valori validi!",
+                errorBlock: "❌ Block 0, 4, 5 o 6 non trovato!"
+            },
+            en: {
+                title: "🔹 NFC Mifare Editor 🔹",
+                loadFile: "📂 Load NFC File",
+                uid: "🆔 UID",
+                credit: "💳 Current Credit",
+                date: "📅 Last Recharge Date",
+                encoding: "🔒 Encoding Type",
+                lastOpCredit: "💵 Last Operation Credit",
+                lastOpDate: "🕒 Last Operation Date",
+                keepUid: "🔄 Keep Current UID",
+                newUid: "🆔 New UID",
+                keepCredit: "🔄 Keep Current Credit",
+                newCredit: "💳 New Credit (€)",
+                keepDate: "🔄 Keep Current Date",
+                newDate: "📅 New Recharge Date",
+                keepLastOpCredit: "🔄 Keep Last Op. Credit",
+                newLastOpCredit: "💵 New Last Op. Credit (€)",
+                keepLastOpDate: "🔄 Keep Last Op. Date",
+                newLastOpDate: "🕒 New Last Op. Date",
+                updateSame: "🔄 Update File",
+                updateNew: "📝 Create New File",
+                months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+                errorLoad: "❌ Load an NFC file first!",
+                errorValue: "❌ Enter valid values!",
+                errorBlock: "❌ Block 0, 4, 5, or 6 not found!"
+            }
+        };
+
+        // Popola dropdown
+        for (let i = 0; i < 256; i++) {
+            const opt = document.createElement("option");
+            opt.value = i; opt.text = i.toString(16).padStart(2, "0").toUpperCase();
+            ["uid0", "uid1", "uid2", "uid3"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        }
+        for (let i = 1; i <= 31; i++) {
+            const opt = document.createElement("option");
+            opt.value = i; opt.text = i;
+            ["day", "lastOpDay"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        }
+        texts.it.months.forEach((m, i) => {
+            const opt = document.createElement("option");
+            opt.value = i + 1; opt.text = m;
+            ["month", "lastOpMonth"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        });
+        for (let i = 2010; i <= 2040; i++) {
+            const opt = document.createElement("option");
+            opt.value = i; opt.text = i;
+            ["year", "lastOpYear"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        }
+        for (let i = 0; i < 24; i++) {
+            const opt = document.createElement("option");
+            opt.value = i; opt.text = i.toString().padStart(2, "0");
+            ["hours", "lastOpHours"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        }
+        for (let i = 0; i < 60; i++) {
+            const opt = document.createElement("option");
+            opt.value = i; opt.text = i.toString().padStart(2, "0");
+            ["minutes", "lastOpMinutes"].forEach(id => document.getElementById(id).appendChild(opt.cloneNode(true)));
+        }
+
+        // Toggle campi
+        ["keepUid", "keepCredit", "keepDate", "keepLastOpCredit", "keepLastOpDate"].forEach(id => {
+            document.getElementById(id).addEventListener("change", e => {
+                const prefix = id.replace("keep", "").toLowerCase();
+                const inputs = prefix === "uid" ? ["uid0", "uid1", "uid2", "uid3"] :
+                              prefix === "credit" ? ["newCredit"] :
+                              prefix === "date" ? ["day", "month", "year", "hours", "minutes"] :
+                              prefix === "lastopcredit" ? ["newLastOpCredit"] :
+                              ["lastOpDay", "lastOpMonth", "lastOpYear", "lastOpHours", "lastOpMinutes"];
+                inputs.forEach(inputId => document.getElementById(inputId).disabled = e.target.checked);
+            });
+        });
+
+        // Toggle lingua
+        document.getElementById("langToggle").addEventListener("click", () => {
+            language = language === "it" ? "en" : "it";
+            document.getElementById("langToggle").textContent = language === "it" ? "🇬🇧 EN" : "🇮🇹 IT";
+            document.querySelector(".file-input label").textContent = texts[language].loadFile;
+            document.querySelectorAll(".section h3")[0].textContent = "📋 " + (language === "it" ? "Dati Estratti" : "Extracted Data");
+            document.querySelectorAll(".section h3")[1].textContent = "✏️ " + (language === "it" ? "Modifica Dati" : "Edit Data");
+            ["uid", "credit", "date", "encoding", "lastOpCredit", "lastOpDate"].forEach(field => {
+                document.querySelector(`#${field}`).previousElementSibling.textContent = texts[language][field] + ":";
+            });
+            ["keepUid", "newUid", "keepCredit", "newCredit", "keepDate", "newDate", "keepLastOpCredit", "newLastOpCredit", "keepLastOpDate", "newLastOpDate"].forEach(field => {
+                const elem = document.querySelector(`#${field.replace(/([A-Z])/g, '-$1').toLowerCase()}`).parentElement.querySelector("label");
+                elem.textContent = texts[language][field] + (field.startsWith("keep") ? "" : ":");
+            });
+            document.querySelectorAll(".section button")[0].textContent = texts[language].updateSame;
+            document.querySelectorAll(".section button")[1].textContent = texts[language].updateNew;
+            ["month", "lastOpMonth"].forEach(id => {
+                const select = document.getElementById(id);
+                select.innerHTML = "";
+                texts[language].months.forEach((m, i) => {
+                    const opt = document.createElement("option");
+                    opt.value = i + 1; opt.text = m;
+                    select.appendChild(opt);
+                });
+            });
+            updateUI();
+        });
+
+        document.getElementById("fileInput").addEventListener("change", () => {
+            const file = document.getElementById("fileInput").files[0];
+            if (file) loadFile(file);
+        });
+
+        function loadFile(file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                fileContent = reader.result;
+                document.getElementById("fileContent").value = fileContent;
+                parseFile();
+            };
+            reader.readAsText(file);
+        }
+
+        function parseFile() {
+            const lines = fileContent.split("\n");
+            let block0Found = false, block4Found = false, block5Found = false, block6Found = false;
+            sectorKeys = {};
+            block0 = Array(16).fill(0); keys = Array(16).fill(0); lastOpCredit = Array(16).fill(0); lastOpDate = Array(16).fill(0);
+            block0Hex = Array(16).fill("00"); keysHex = Array(16).fill("00"); lastOpCreditHex = Array(16).fill("00"); lastOpDateHex = Array(16).fill("00");
+
+            lines.forEach(line => {
+                if (line.startsWith("Block ")) {
+                    const parts = line.split(/\s+/);
+                    const blockNum = parseInt(parts[1].replace(":", ""));
+                    const data = parts.slice(2);
+                    if (data.length >= 16) {
+                        if (blockNum === 0) {
+                            block0Hex = data.slice(0, 16);
+                            block0 = block0Hex.map(x => parseInt(x, 16));
+                            block0Found = true;
+                        } else if (blockNum === 4) {
+                            keysHex = data.slice(0, 16);
+                            keys = keysHex.map(x => parseInt(x, 16));
+                            block4Found = true;
+                        } else if (blockNum === 5) {
+                            lastOpCreditHex = data.slice(0, 16);
+                            lastOpCredit = lastOpCreditHex.map(x => parseInt(x, 16));
+                            block5Found = true;
+                        } else if (blockNum === 6) {
+                            lastOpDateHex = data.slice(0, 16);
+                            lastOpDate = lastOpDateHex.map(x => parseInt(x, 16));
+                            block6Found = true;
+                        }
+                    }
+                    if (blockNum % 4 === 3 && parts.length >= 18) {
+                        sectorKeys[Math.floor(blockNum / 4)] = [
+                            parts.slice(2, 8).join("").toUpperCase(),
+                            parts.slice(12, 18).join("").toUpperCase()
+                        ];
+                    }
+                }
+            });
+
+            if (!(block0Found && block4Found && block5Found && block6Found)) {
+                alert(texts[language].errorBlock);
+                return;
+            }
+
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById("uid").textContent = block0Hex.slice(0, 4).join(" ") || "00 00 00 00";
+            document.getElementById("credit").textContent = calculateCredit().toFixed(2) + " €";
+            document.getElementById("date").textContent = calculateDate();
+            document.getElementById("encoding").textContent = detectEncodingType();
+            document.getElementById("lastOpCredit").textContent = calculateLastOpCredit().toFixed(2) + " €";
+            document.getElementById("lastOpDate").textContent = calculateLastOpDate();
+        }
+
+        function calculateCredit() {
+            return ((keys[6] << 8) | keys[5]) / 100;
+        }
+
+        function calculateDate() {
+            const b = (keys[10] << 24) | (keys[9] << 16) | (keys[8] << 8) | keys[7];
+            if (b === 0) return "N/A";
+            const minutes = (b >> 21) & 0x3F;
+            const hours = (b >> 16) & 0x1F;
+            const year = 2010 + ((b >> 9) & 0x1F);
+            const month = (b >> 5) & 0x0F;
+            const day = b & 0x1F;
+            return `${day} ${texts[language].months[month - 1] || "invalid"} ${year} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+        }
+
+        function calculateLastOpCredit() {
+            return ((lastOpCredit[6] << 8) | lastOpCredit[5]) / 100;
+        }
+
+        function calculateLastOpDate() {
+            const b = (lastOpDate[10] << 24) | (lastOpDate[9] << 16) | (lastOpDate[8] << 8) | lastOpDate[7];
+            if (b === 0) return "N/A";
+            const minutes = (b >> 21) & 0x3F;
+            const hours = (b >> 16) & 0x1F;
+            const year = 2010 + ((b >> 9) & 0x1F);
+            const month = (b >> 5) & 0x0F;
+            const day = b & 0x1F;
+            return `${day} ${texts[language].months[month - 1] || "invalid"} ${year} ${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+        }
+
+        function detectEncodingType() {
+            if (!Object.keys(sectorKeys).length) return language === "it" ? "sconosciuta" : "unknown";
+            let isMicroel = true;
+            for (let s of [0, 1]) {
+                if (!sectorKeys[s] || sectorKeys[s][0] === "FFFFFFFFFFFF" || sectorKeys[s][1] === "FFFFFFFFFFFF") isMicroel = false;
+            }
+            for (let s = 2; s < 16; s++) {
+                if (!sectorKeys[s] || sectorKeys[s][0] !== "FFFFFFFFFFFF" || sectorKeys[s][1] !== "FFFFFFFFFFFF") isMicroel = false;
+            }
+            return isMicroel ? "microel" : (language === "it" ? "sconosciuta" : "unknown");
+        }
+
+        function calculateChecksum() {
+            return (keys.slice(0, -1).reduce((a, b) => a + b, 0) + 0x21) % 256;
+        }
+
+        function updateFile(isNew) {
+            if (!fileContent) {
+                alert(texts[language].errorLoad);
+                return;
+            }
+            try {
+                if (!document.getElementById("keepCredit").checked) {
+                    const newCredit = parseFloat(document.getElementById("newCredit").value);
+                    if (isNaN(newCredit) || newCredit < 0) throw new Error();
+                    const creditInt = Math.round(newCredit * 100);
+                    keys[5] = creditInt & 0xFF;
+                    keys[6] = (creditInt >> 8) & 0xFF;
+                }
+                if (!document.getElementById("keepDate").checked) {
+                    const day = parseInt(document.getElementById("day").value);
+                    const month = parseInt(document.getElementById("month").value);
+                    const year = parseInt(document.getElementById("year").value) - 2010;
+                    const hours = parseInt(document.getElementById("hours").value);
+                    const minutes = parseInt(document.getElementById("minutes").value);
+                    const timestamp = (day & 0x1F) | (month << 5) | (year << 9) | (1 << 14) | (hours << 16) | (minutes << 21);
+                    keys[7] = timestamp & 0xFF;
+                    keys[8] = (timestamp >> 8) & 0xFF;
+                    keys[9] = (timestamp >> 16) & 0xFF;
+                    keys[10] = (timestamp >> 24) & 0xFF;
+                }
+                keys[15] = calculateChecksum();
+                keysHex = keys.map(x => x.toString(16).padStart(2, "0").toUpperCase());
+
+                if (!document.getElementById("keepLastOpCredit").checked) {
+                    const newLastOpCredit = parseFloat(document.getElementById("newLastOpCredit").value);
+                    if (isNaN(newLastOpCredit) || newLastOpCredit < 0) throw new Error();
+                    const creditInt = Math.round(newLastOpCredit * 100);
+                    lastOpCredit[5] = creditInt & 0xFF;
+                    lastOpCredit[6] = (creditInt >> 8) & 0xFF;
+                    lastOpCreditHex = lastOpCredit.map(x => x.toString(16).padStart(2, "0").toUpperCase());
+                }
+                if (!document.getElementById("keepLastOpDate").checked) {
+                    const day = parseInt(document.getElementById("lastOpDay").value);
+                    const month = parseInt(document.getElementById("lastOpMonth").value);
+                    const year = parseInt(document.getElementById("lastOpYear").value) - 2010;
+                    const hours = parseInt(document.getElementById("lastOpHours").value);
+                    const minutes = parseInt(document.getElementById("lastOpMinutes").value);
+                    const timestamp = (day & 0x1F) | (month << 5) | (year << 9) | (1 << 14) | (hours << 16) | (minutes << 21);
+                    lastOpDate[7] = timestamp & 0xFF;
+                    lastOpDate[8] = (timestamp >> 8) & 0xFF;
+                    lastOpDate[9] = (timestamp >> 16) & 0xFF;
+                    lastOpDate[10] = (timestamp >> 24) & 0xFF;
+                    lastOpDateHex = lastOpDate.map(x => x.toString(16).padStart(2, "0").toUpperCase());
+                }
+                if (!document.getElementById("keepUid").checked) {
+                    const newUid = [parseInt(document.getElementById("uid0").value), parseInt(document.getElementById("uid1").value),
+                                    parseInt(document.getElementById("uid2").value), parseInt(document.getElementById("uid3").value)];
+                    const uidXor = newUid[0] ^ newUid[1] ^ newUid[2] ^ newUid[3];
+                    block0[0] = newUid[0]; block0[1] = newUid[1]; block0[2] = newUid[2]; block0[3] = newUid[3]; block0[4] = uidXor;
+                    block0Hex = block0.map(x => x.toString(16).padStart(2, "0").toUpperCase());
+                }
+
+                const updatedContent = fileContent.split("\n").map(line => {
+                    if (line.startsWith("Block 0:")) return `Block 0: ${block0Hex.join(" ")}`;
+                    if (line.startsWith("Block 4:")) return `Block 4: ${keysHex.join(" ")}`;
+                    if (line.startsWith("Block 5:")) return `Block 5: ${lastOpCreditHex.join(" ")}`;
+                    if (line.startsWith("Block 6:")) return `Block 6: ${lastOpDateHex.join(" ")}`;
+                    return line;
+                }).join("\n");
+
+                document.getElementById("fileContent").value = updatedContent;
+                updateUI();
+
+                const blob = new Blob([updatedContent], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = isNew ? "new_nfc_file.nfc" : "updated_nfc_file.nfc";
+                a.click();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert(texts[language].errorValue);
+            }
+        }
+    </script>
+</body>
+</html>
