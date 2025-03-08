@@ -11,6 +11,11 @@
             margin: 0;
             padding: 20px;
             color: #333;
+            transition: background 0.4s, color 0.4s;
+        }
+        body.dark {
+            background: linear-gradient(135deg, #263238, #455a64);
+            color: #fff;
         }
         .container {
             max-width: 600px;
@@ -19,6 +24,11 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: background 0.4s;
+        }
+        .container.dark {
+            background: #37474f;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         h1 {
             text-align: center;
@@ -26,16 +36,24 @@
             margin-bottom: 20px;
             font-size: 28px;
         }
-        .lang-toggle {
+        .dark h1 {
+            color: #4fc3f7;
+        }
+        .top-buttons {
             position: absolute;
-            top: 30px;
-            right: 30px;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-toggle {
             padding: 8px 12px;
             background: #ffca28;
             border: none;
             border-radius: 20px;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.3s;
         }
         .lang-toggle:hover {
             background: #ffb300;
@@ -46,11 +64,18 @@
             background: #f5f5f5;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: background 0.4s;
+        }
+        .dark .section {
+            background: #455a64;
         }
         .section h3 {
             margin: 0 0 10px;
             color: #0277bd;
             font-size: 20px;
+        }
+        .dark .section h3 {
+            color: #81d4fa;
         }
         .file-input {
             display: flex;
@@ -79,6 +104,9 @@
             font-weight: bold;
             color: #d81b60;
         }
+        .dark .info span {
+            color: #f06292;
+        }
         .form-group {
             margin: 10px 0;
         }
@@ -94,6 +122,13 @@
             border-radius: 5px;
             font-size: 14px;
             margin-right: 5px;
+            background: #fff;
+            transition: background 0.4s, border 0.4s;
+        }
+        .dark select, .dark input[type="number"] {
+            background: #546e7a;
+            border-color: #78909c;
+            color: #fff;
         }
         button {
             padding: 10px 20px;
@@ -118,7 +153,160 @@
             font-size: 14px;
             resize: none;
             background: #fafafa;
+            transition: background 0.4s, border 0.4s;
         }
+        .dark textarea {
+            background: #546e7a;
+            border-color: #78909c;
+            color: #fff;
+        }
+
+        /* Stile Switch Tema */
+        .switch {
+            display: inline-block;
+            position: relative;
+        }
+        .switch__input {
+            clip: rect(1px, 1px, 1px, 1px);
+            clip-path: inset(50%);
+            height: 1px;
+            width: 1px;
+            margin: -1px;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+        }
+        .switch__label {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+            background-color: #2b2b2b;
+            border: 3px solid #5b5b5b;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(.46,.03,.52,.96);
+        }
+        .switch__indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) translateX(-72%);
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-color: #7b7b7b;
+            border-radius: 9999px;
+            box-shadow: 5px 0 0 0 rgba(0, 0, 0, 0.2) inset;
+            transition: all 0.4s cubic-bezier(.46,.03,.52,.96);
+        }
+        .switch__indicator::before,
+        .switch__indicator::after {
+            position: absolute;
+            content: '';
+            display: block;
+            background-color: #ffffff;
+            border-radius: 9999px;
+        }
+        .switch__indicator::before {
+            top: 3px;
+            left: 3px;
+            width: 4px;
+            height: 4px;
+            opacity: 0.6;
+        }
+        .switch__indicator::after {
+            bottom: 4px;
+            right: 3px;
+            width: 7px;
+            height: 7px;
+            opacity: 0.8;
+        }
+        .switch__decoration {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            display: block;
+            width: 3px;
+            height: 3px;
+            background-color: #ffffff;
+            border-radius: 9999px;
+            animation: twinkle 0.8s infinite -0.6s;
+        }
+        .switch__decoration::before,
+        .switch__decoration::after {
+            position: absolute;
+            display: block;
+            content: '';
+            width: 3px;
+            height: 3px;
+            background-color: #ffffff;
+            border-radius: 9999px;
+        }
+        .switch__decoration::before {
+            top: -10px;
+            left: 5px;
+            opacity: 1;
+            animation: twinkle 0.6s infinite;
+        }
+        .switch__decoration::after {
+            top: -4px;
+            left: 15px;
+            animation: twinkle 0.6s infinite -0.2s;
+        }
+        @keyframes twinkle {
+            50% { opacity: 0.2; }
+        }
+        .switch__input:checked + .switch__label {
+            background-color: #8fb5f5;
+            border-color: #347cf8;
+        }
+        .switch__input:checked + .switch__label .switch__indicator {
+            background-color: #ecd21f;
+            box-shadow: none;
+            transform: translate(-50%, -50%) translateX(72%);
+        }
+        .switch__input:checked + .switch__label .switch__indicator::before,
+        .switch__input:checked + .switch__label .switch__indicator::after {
+            display: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration {
+            top: 50%;
+            transform: translate(0%, -50%);
+            animation: cloud 8s linear infinite;
+            width: 10px;
+            height: 10px;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::before {
+            width: 5px;
+            height: 5px;
+            top: auto;
+            bottom: 0;
+            left: -4px;
+            animation: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            width: 7px;
+            height: 7px;
+            top: auto;
+            bottom: 0;
+            left: 8px;
+            animation: none;
+        }
+        .switch__input:checked + .switch__label .switch__decoration,
+        .switch__input:checked + .switch__label .switch__decoration::before,
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            border-radius: 9999px 9999px 0 0;
+        }
+        .switch__input:checked + .switch__label .switch__decoration::after {
+            border-bottom-right-radius: 9999px;
+        }
+        @keyframes cloud {
+            0% { transform: translate(0%, -50%); }
+            50% { transform: translate(-50%, -50%); }
+            100% { transform: translate(0%, -50%); }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 15px;
@@ -130,13 +318,26 @@
                 padding: 8px 15px;
                 font-size: 14px;
             }
+            .top-buttons {
+                flex-direction: column;
+                align-items: flex-end;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🔹 NFC Mifare Editor 🔹</h1>
-        <button class="lang-toggle" id="langToggle">🇬🇧 EN</button>
+        <div class="top-buttons">
+            <button class="lang-toggle" id="langToggle">🇬🇧 EN</button>
+            <div class="switch">
+                <input type="checkbox" class="switch__input" id="Switch">
+                <label class="switch__label" for="Switch">
+                    <span class="switch__indicator"></span>
+                    <span class="switch__decoration"></span>
+                </label>
+            </div>
+        </div>
 
         <div class="section">
             <div class="file-input">
@@ -338,6 +539,12 @@
                 });
             });
             updateUI();
+        });
+
+        // Toggle tema
+        document.getElementById("Switch").addEventListener("change", (e) => {
+            document.body.classList.toggle("dark", e.target.checked);
+            document.querySelector(".container").classList.toggle("dark", e.target.checked);
         });
 
         document.getElementById("fileInput").addEventListener("change", () => {
